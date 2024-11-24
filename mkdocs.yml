@@ -1,4 +1,19 @@
 site_name: Key-Value Store
 site_url: https://mydomain.org/mysite
 theme:
-  name: material
+  name: material  
+  features:
+    - content.code.copy
+
+nav:
+  - Home: index.md
+  - CD with ArgoCD: "CD with ArgoCD/index.md"
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences

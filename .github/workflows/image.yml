@@ -42,12 +42,13 @@ jobs:
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
           # This strips the "v" prefix from the tag name.
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-          # This uses the Docker `latest` tag convention.
-          [ "$VERSION" == "main" ] && VERSION=latest
-          [ "$VERSION" != "main" ] && VERSION="pr-${{ github.event.pull_request.number }}"
+          # Checking if version is not a version tag or main branch
           if [ "$VERSION" != "main" ] && [ "$VERSION" !=  *.* ]; then
             VERSION="pr-${{ github.event.pull_request.number }}"
-          fi
+            echo "this is a pull request commit and the version is $VERSION"
+          fi          
+          # This uses the Docker `latest` tag convention.
+          [ "$VERSION" == "main" ] && VERSION=latest
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
           docker tag $IMAGE_NAME $IMAGE_ID:$VERSION

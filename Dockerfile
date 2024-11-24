@@ -6,4 +6,4 @@ WORKDIR /app
 
 RUN pip install -r requirements.txt
 
-CMD ["fastapi run", "main.py"]
+CMD ["fastapi", "run", "main.py"]

@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Response, status
 from pydantic import BaseModel
+from threading import Lock
 
 # Create Key-Value Pair
 class keyValue(BaseModel):
@@ -10,6 +11,7 @@ app = FastAPI()
 
 # In-memory store
 store = {}
+store_lock = Lock()
 
 @app.get("/")
 async def root():
@@ -17,27 +19,30 @@ async def root():
 
 @app.get("/value/{key}", status_code=status.HTTP_200_OK)
 async def getValue(key: str, response: Response):
-    if key in store:
-        return {"value": store[key]}
-    else:
-        response.status_code = status.HTTP_404_NOT_FOUND
-        return {"message": "Key not found."}
+    with store_lock:
+        if key in store:
+            return {"value": store[key]}
+        else:
+            response.status_code = status.HTTP_404_NOT_FOUND
+            return {"message": "Key not found."}
 
 
 @app.post("/value/", status_code=status.HTTP_201_CREATED)
 async def addKeyValue(keyvalue: keyValue, response: Response):
-    if keyvalue.key not in store:
-        store[keyvalue.key] = keyvalue.value
-        return {"message": "Key-Value pair added"}
-    else:
-        response.status_code = status.HTTP_409_CONFLICT
-        return {"message": "Key already exists. Stay tuned for the PUT method to update the value."}
+    with store_lock:
+        if keyvalue.key not in store:
+            store[keyvalue.key] = keyvalue.value
+            return {"message": "Key-Value pair added"}
+        else:
+            response.status_code = status.HTTP_409_CONFLICT
+            return {"message": "Key already exists. Stay tuned for the PUT method to update the value."}
 
 @app.delete("/value/{key}", status_code=status.HTTP_200_OK)
 async def deleteKeyValue(key: str, response: Response):
-    if key in store:
-        del store[key]
-        return {"message": "Key-Value pair deleted"}
-    else:
-        response.status_code = status.HTTP_404_NOT_FOUND
-        return {"message": "Key not found"}
+    with store_lock:
+        if key in store:
+            del store[key]
+            return {"message": "Key-Value pair deleted"}
+        else:
+            response.status_code = status.HTTP_404_NOT_FOUND
+            return {"message": "Key not found"}

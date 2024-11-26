@@ -13,6 +13,7 @@ spec:
       labels:
         app: key-value-store
     spec:
+      nodeName: minikube
       containers:
       - image: ghcr.io/osobky/key-value-store:latest
         name: key-value-store
